@@ -1,0 +1,28 @@
+[sqlfluff]
+dialect = ansi
+
+[sqlfluff:indentation]
+tab_space_size = 4
+
+[sqlfluff:rules:capitalisation.keywords]
+capitalisation_policy = upper
+
+[sqlfluff:rules:layout.long_lines]
+line_length = 200
+
+[sqlfluff:rules:layout.spacing]
+# This will handle most spacing issues
+
+[sqlfluff:rules:layout.end_of_file]
+# Ensure files end with newline
+
+# The key setting for column formatting
+[sqlfluff:layout:type:column_definition]
+line_position = alone
+spacing_before = single  
+spacing_after = single
+
+[sqlfluff:layout:type:comma]
+line_position = trailing
+spacing_before = touch
+spacing_after = single

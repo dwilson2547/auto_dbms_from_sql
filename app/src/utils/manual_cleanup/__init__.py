@@ -1,0 +1,1 @@
+from utils.manual_cleanup.cleanup import apply_default_fixes

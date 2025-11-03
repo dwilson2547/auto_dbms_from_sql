@@ -1,0 +1,22 @@
+[sqlfluff]
+dialect = ansi
+
+[sqlfluff:indentation]
+tab_space_size = 4
+
+[sqlfluff:rules:capitalisation.keywords]
+capitalisation_policy = upper
+
+[sqlfluff:rules:layout.long_lines]  
+line_length = 500
+
+# Key setting: Force each column definition on its own line
+[sqlfluff:layout:type:column_definition]
+line_position = alone
+spacing_before = single
+
+# Comma formatting
+[sqlfluff:layout:type:comma]
+line_position = trailing
+spacing_before = touch  
+spacing_after = single

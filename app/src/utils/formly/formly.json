@@ -1,0 +1,61 @@
+[
+  {
+    "key": "username",
+    "type": "input",
+    "templateOptions": {
+      "label": "Username",
+      "required": true,
+      "type": "text",
+      "maxLength": 50
+    }
+  },
+  {
+    "key": "email",
+    "type": "input",
+    "templateOptions": {
+      "label": "Email",
+      "required": true,
+      "type": "email",
+      "maxLength": 100,
+      "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+    }
+  },
+  {
+    "key": "user_id",
+    "type": "input",
+    "templateOptions": {
+      "label": "User Id",
+      "required": true,
+      "type": "number",
+      "pattern": "^-?\\d+$"
+    }
+  },
+  {
+    "key": "title",
+    "type": "input",
+    "templateOptions": {
+      "label": "Title",
+      "required": true,
+      "type": "text",
+      "maxLength": 200
+    }
+  },
+  {
+    "key": "content",
+    "type": "input",
+    "templateOptions": {
+      "label": "Content",
+      "required": false,
+      "type": "text"
+    }
+  },
+  {
+    "key": "published_at",
+    "type": "input",
+    "templateOptions": {
+      "label": "Published At",
+      "required": false,
+      "type": "datetime-local"
+    }
+  }
+]
