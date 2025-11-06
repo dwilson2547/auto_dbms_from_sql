@@ -5,6 +5,7 @@ import cherrypy
 from blueprints.users_blueprint import users_blueprint
 from blueprints.posts_blueprint import posts_blueprint
 from blueprints.connections_blueprint import connections_blueprint
+from blueprints.db_models_blueprint import db_models_blueprint
 
 
 def create_app():
@@ -17,6 +18,7 @@ def create_app():
     app.register_blueprint(users_blueprint, url_prefix='/api')   # Blueprint name is added to url in blueprint file
     app.register_blueprint(posts_blueprint, url_prefix='/api')   # Blueprint name is added to url in blueprint file
     app.register_blueprint(connections_blueprint, url_prefix='/api')   # Blueprint name is added to url in blueprint file
+    app.register_blueprint(db_models_blueprint, url_prefix='/api')   # Blueprint name is added to url in blueprint file
 
 
     with app.app_context():

@@ -1,0 +1,31 @@
+from flask import Blueprint, current_app, request, jsonify
+
+from services.${name}_service import get_all, get_one, update, delete
+from forms.${name}_form import ${model_name}_form
+
+form = ${model_name}_form()
+
+${name}_blueprint = Blueprint('${name}', __name__, url_prefix='/${name}')
+
+@${name}_blueprint.route('/get_all', methods=['GET'])
+def get_all_${name}():
+    return jsonify(get_all())
+
+@${name}_blueprint.route('/get/${crud_route}', methods=['GET'])
+def get_one_${name}(${crud_keys_typed}):
+    data = request.get_json()
+    return jsonify(get_one(${crud_keys}))
+
+@${name}_blueprint.route('/update/${crud_route}', methods=['POST'])
+def update_${name}():
+    data = request.get_json()
+    return jsonify(update(${crud_keys}))
+
+@${name}_blueprint.route('/delete/${crud_keys}', methods=['DELETE'])
+def delete_${name}():
+    data = request.get_json()
+    return jsonify(delete(${crud_keys}))
+
+@${name}_blueprint.route('/form-data', methods=['GET'])
+def get_form_${name}():
+    return jsonify(form.get_form_data())

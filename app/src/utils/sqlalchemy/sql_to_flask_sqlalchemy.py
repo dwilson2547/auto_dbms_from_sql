@@ -68,7 +68,7 @@ class SQLToFlaskSQLAlchemy:
         if not table_match:
             return None
         
-        table_name = table_match.group(1)
+        table_name = table_match.group(1).lower()
         class_name = self.to_camel_case(table_name)
         
         # Extract columns section
@@ -154,7 +154,7 @@ class SQLToFlaskSQLAlchemy:
             default_value = default_match.group(1) if default_match else None
             
             parsed_columns.append({
-                'name': col_name,
+                'name': col_name.lower(),
                 'type': self.parse_column_type(col_type),
                 'primary_key': is_primary,
                 'nullable': is_nullable,
@@ -219,6 +219,8 @@ class SQLToFlaskSQLAlchemy:
         output.append("")
         output.append("")
         
+        tables_dict = {}
+        
         for table_sql in tables:
             table_sql = table_sql.strip()
             if not table_sql:
@@ -226,12 +228,13 @@ class SQLToFlaskSQLAlchemy:
             
             table_info = self.parse_create_table(table_sql)
             if table_info:
+                tables_dict[table_info['table_name']] = table_info
                 model_code = self.generate_model(table_info)
                 output.append(model_code)
                 output.append("")
                 output.append("")
         
-        return "\n".join(output)
+        return "\n".join(output), tables_dict
 
 
 def main():
@@ -248,7 +251,7 @@ def main():
             sql_script = f.read()
     
     converter = SQLToFlaskSQLAlchemy()
-    result = converter.convert(sql_script)
+    result, tables_dict = converter.convert(sql_script)
     print(result)
 
 

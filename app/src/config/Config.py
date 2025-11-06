@@ -35,9 +35,11 @@ class Config:
     project_name: str = "AutoDBMS"
     version: str = "1.0.0"
     environment: str = "development"
+    api_prefix: str = "/api"
 
     logging_config: LoggingConfig
     parse_config: ParseConfig
+    module_logging: Dict[str, LoggingConfig] = field(default_factory=dict)
 
     def __init__(self, config_file: Optional[str] = None):
         
@@ -70,6 +72,7 @@ class Config:
         self.project_name = data.get("project_name", self.project_name)
         self.version = data.get("version", self.version)
         self.environment = data.get("environment", self.environment)
+        self.api_prefix = data.get("api_prefix", self.api_prefix)
 
         # Parse configuration
         parse_data = data.get("parse", {})
@@ -82,3 +85,15 @@ class Config:
         self.logging_config.max_file_size = logging_data.get("max_file_size", self.logging_config.max_file_size)
         self.logging_config.backup_count = logging_data.get("backup_count", self.logging_config.backup_count)
         self.logging_config.console_output = logging_data.get("console_output", self.logging_config.console_output)
+        
+        module_logging_data = data.get("module_logging", {})
+        for module, config in module_logging_data.items():
+            mod_log_config = LoggingConfig(
+                level=LogLevel[config.get("level", self.logging_config.level.name)],
+                format=config.get("format", self.logging_config.format),
+                file_path=config.get("file_path", self.logging_config.file_path),
+                max_file_size=config.get("max_file_size", self.logging_config.max_file_size),
+                backup_count=config.get("backup_count", self.logging_config.backup_count),
+                console_output=config.get("console_output", self.logging_config.console_output)
+            )
+            self.module_logging[module] = mod_log_config

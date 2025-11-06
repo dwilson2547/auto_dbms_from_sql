@@ -1,0 +1,9 @@
+from flask import Blueprint, jsonify
+
+db_models_blueprint = Blueprint('db_models', __name__)
+
+@db_models_blueprint.route('/get_all', methods=['GET'])
+def get_all():
+    payload = ${payload}
+    return jsonify(payload)
+

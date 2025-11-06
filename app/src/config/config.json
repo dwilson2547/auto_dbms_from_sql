@@ -11,5 +11,14 @@
         "max_file_size": 10485760,
         "backup_count": 5,
         "console_output": true
+    },
+    "module_logging": {
+        "utils": {
+            "level": "DEBUG",
+            "file_path": null,
+            "max_file_size": 10485760,
+            "backup_count": 5,
+            "console_output": true
+        }
     }
 }

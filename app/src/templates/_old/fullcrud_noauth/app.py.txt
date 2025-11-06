@@ -1,0 +1,32 @@
+from flask import Flask
+from extensions import db
+import cherrypy
+
+${imports}
+
+def create_app():
+    app = Flask(__name__)
+
+    app.config.from_object('config.Config')
+
+    db.init_app(app)
+
+    ${blueprints}
+
+    with app.app_context():
+        db.create_all()
+    
+    return app
+
+def init_server():
+    app = create_app()
+    cherrypy.tree.graft(app, '/')
+    cherrypy.config.update({
+        'server.socker_host': '0.0.0.0',
+        'server.socket_port': 8080,
+        'engine.autoreload.on': False
+    })
+
+if __name__ == '__main__':
+    init_server()
+    cherrypy.engine.start()

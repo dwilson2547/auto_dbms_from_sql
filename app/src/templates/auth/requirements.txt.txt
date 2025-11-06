@@ -1,0 +1,6 @@
+flask_sqlalchemy
+cherrypy
+flask
+flask_jwt_extended
+flask-bcrypt
+bcrypt

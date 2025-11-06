@@ -1,0 +1,32 @@
+from extensions import db
+from models import ${model_name}
+
+def get_all():
+    return db.session.query(${model_name}).all()
+
+def get_one(${crud_keys_typed}):
+    return db.session.query(${model_name}).filter(${pk_id_filter}).first()
+
+def add(payload: dict):
+    rec = ${model_name}(
+${add_payload}
+    )
+
+    db.session.add(rec)
+    db.session.commit()
+    return rec
+
+def update(${crud_keys_typed}, payload):
+    rec = get_one($crud_keys)
+
+${update_payload}
+
+    db.session.commit()
+    return rec
+
+
+def delete(${crud_keys_typed}):
+    rec = get_one(${crud_keys})
+    db.session.delete(rec)
+    db.session.commit()
+    return {'status', 'ok'}

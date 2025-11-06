@@ -1,0 +1,16 @@
+from flask_sqlalchemy import SQLAlchemy
+from flask_bcrypt import Bcrypt
+from flask_jwt_extended import JWTManager
+
+def nothing():
+    # The nothing function, used as such:
+    # (model.value=payload['value']) if 'value' in payload else nothing()
+    # This allows you to combine the setter and conditional check in one line
+    # Only problem is when using inline if, python expects an else and wrapping 
+    # The set operation makes it a function? So we need another function to create_all
+    # In the failure case, hence the nothing function
+    pass
+
+db = SQLAlchemy()
+bcrypt = Bcrypt()
+jwt = JWTManager()
