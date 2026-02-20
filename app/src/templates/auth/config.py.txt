@@ -1,3 +1,4 @@
+from datetime import timedelta
 import os
 from urllib.parse import quote_plus
 
@@ -6,7 +7,7 @@ db_user = os.getenv('db_user')
 db_pass = os.getenv('db_pass')
 db_name = os.getenv('db_name')
 db_type = os.getenv('db_type', 'postgres').lower()
-jwt_key = os.getenv('jwt_key')
+jwt_key = os.getenv('jwt_key', 'change-me-in-production')
 
 type_mapping = {
     'postgres': 'postgresql+psycopg2',
@@ -17,5 +18,5 @@ class Config:
     SQLALCHEMY_DATABASE_URI=type_mapping.get(db_type) + '://%s:%s@%s/%s' % (db_user.strip(), quote_plus(db_pass.strip()), db_url.strip(), db_name.strip())
     JWT_SECRET_KEY=jwt_key
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(days=7)
-    JWT_TOKEN_LOCATION='cookies'
+    JWT_TOKEN_LOCATION = ['headers']
     debug=True

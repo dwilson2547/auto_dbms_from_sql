@@ -48,6 +48,8 @@ class Templates:
         config_template = TemplateFile('auth/config.py.txt', 'config.py')
         readme_template = TemplateFile('auth/README.md.txt', 'README.md')
         db_models_blueprint = TemplateFile('auth/db_models_blueprint.py.txt', 'db_models_blueprint.py')
+        auth_blueprint = TemplateFile('auth/auth_blueprint.py.txt', 'auth_blueprint.py')
+        user_model = TemplateFile('auth/user_model.py.txt', 'user_model.py')
         class Basic:
             flask_blueprint = TemplateFile('auth/basic/flask_blueprint.py.txt', '${name}_blueprint.py')
             service_template = TemplateFile('auth/basic/service_template.py.txt', '${name}_service.py')
