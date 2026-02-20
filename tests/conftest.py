@@ -129,11 +129,13 @@ def flask_server(generated_project_path, postgres_container):
 
 
 @pytest.fixture(scope="session")
-def angular_ui_url(flask_server, tmp_path_factory):
+def angular_ui_url(request, flask_server, tmp_path_factory):
     """
     Start the Angular dev server with a proxy pointing to the Flask API.
     Skipped unless --run-ui is passed.  Yields the UI base URL.
     """
+    if not request.config.getoption("--run-ui"):
+        pytest.skip("UI tests disabled – pass --run-ui to enable")
     proxy_config = {
         "/api": {
             "target": flask_server,
