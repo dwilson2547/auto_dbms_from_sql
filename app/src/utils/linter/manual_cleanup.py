@@ -3,8 +3,6 @@ import logging
 
 log = logging.getLogger(__name__)
 
-text = open('/home/daniel/documents/auto_dbms/app/src/utils/linter/demo_table.sql').read()
-
 class SqlFix():
     type: str
 

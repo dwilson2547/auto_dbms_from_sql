@@ -205,6 +205,10 @@ class SQLToFlaskSQLAlchemy:
             col_def += ")"
             lines.append(col_def)
         
+        lines.append("")
+        lines.append("    def to_dict(self):")
+        lines.append("        return {c.name: getattr(self, c.name) for c in self.__table__.columns}")
+
         return "\n".join(lines)
     
     def convert(self, sql_script):
@@ -213,9 +217,7 @@ class SQLToFlaskSQLAlchemy:
         tables = re.split(r'(?=CREATE TABLE)', sql_script, flags=re.IGNORECASE)
         
         output = []
-        output.append("from flask_sqlalchemy import SQLAlchemy")
-        output.append("")
-        output.append("db = SQLAlchemy()")
+        output.append("from extensions import db")
         output.append("")
         output.append("")
         

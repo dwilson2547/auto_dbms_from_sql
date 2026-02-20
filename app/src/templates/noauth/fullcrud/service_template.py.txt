@@ -1,11 +1,16 @@
 from extensions import db
 from models import ${model_name}
 
+def _get_obj(${crud_keys_typed}):
+    """Internal helper returning the ORM object for write operations."""
+    return db.session.query(${model_name}).filter(${pk_id_filter}).first()
+
 def get_all():
-    return db.session.query(${model_name}).all()
+    return [r.to_dict() for r in db.session.query(${model_name}).all()]
 
 def get_one(${crud_keys_typed}):
-    return db.session.query(${model_name}).filter(${pk_id_filter}).first()
+    rec = _get_obj(${crud_keys})
+    return rec.to_dict() if rec else None
 
 def add(payload: dict):
     rec = ${model_name}(
@@ -14,19 +19,19 @@ ${add_payload}
 
     db.session.add(rec)
     db.session.commit()
-    return rec
+    return rec.to_dict()
 
 def update(${crud_keys_typed}, payload):
-    rec = get_one($crud_keys)
+    rec = _get_obj(${crud_keys})
 
 ${update_payload}
 
     db.session.commit()
-    return rec
+    return rec.to_dict()
 
 
 def delete(${crud_keys_typed}):
-    rec = get_one(${crud_keys})
+    rec = _get_obj(${crud_keys})
     db.session.delete(rec)
     db.session.commit()
-    return {'status', 'ok'}
+    return {'status': 'ok'}
