@@ -1,28 +1,12 @@
 from flask import Flask
 from extensions import db, bcrypt, jwt
 import cherrypy
+import os
 
 ${imports}
 
 def create_app():
     app = Flask(__name__)
-
-    @app.after_request
-    def refresh_expiring_jwts(response):
-        try:
-            exp_timestamp = get_jwt()["exp"]
-            now = datetime.now(timezone.utc)
-            target_timestamp = datetime.timestamp(now + timedelta(minutes=30))
-            if target_timestamp > exp_timestamp:
-                access_token = create_access_token(identity=get_jwt_identity())
-                set_access_cookies(response, access_token)
-            return response
-        except (RuntimeError, KeyError) as e:
-            # Case where there is not a valid JWT. Just return the original response
-            return response
-        except (Exception) as e:
-            print(e)
-            return response
 
     app.config.from_object('config.Config')
 
@@ -34,14 +18,25 @@ def create_app():
 
     with app.app_context():
         db.create_all()
-    
+        _seed_default_user()
+
     return app
+
+def _seed_default_user():
+    from user_model import User
+    if not User.query.filter_by(username='admin').first():
+        hashed = bcrypt.generate_password_hash(
+            os.getenv('default_password', 'admin')
+        ).decode('utf-8')
+        user = User(username='admin', password=hashed)
+        db.session.add(user)
+        db.session.commit()
 
 def init_server():
     app = create_app()
     cherrypy.tree.graft(app, '/')
     cherrypy.config.update({
-        'server.socker_host': '0.0.0.0',
+        'server.socket_host': '0.0.0.0',
         'server.socket_port': 8080,
         'engine.autoreload.on': False
     })

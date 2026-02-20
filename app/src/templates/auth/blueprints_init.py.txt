@@ -1,6 +1,7 @@
+from flask import current_app
 from flask_jwt_extended import get_jwt_identity
 
-def get_jwt():
+def get_current_user():
     try:
         return get_jwt_identity()
     except Exception as ex:

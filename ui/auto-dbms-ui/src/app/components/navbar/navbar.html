@@ -3,9 +3,37 @@
   <div class="nav-actions">
     @if (auth.isLoggedIn()) {
       <span class="user-label">Logged in</span>
-      <button class="btn btn-outline" (click)="auth.logout()" data-testid="logout-btn">Logout</button>
+      <button class="btn btn-outline" (click)="doLogout()" data-testid="logout-btn">Logout</button>
     } @else {
-      <button class="btn btn-primary" (click)="auth.login()" data-testid="login-btn">Login</button>
+      @if (showLoginForm()) {
+        <form class="login-form" (ngSubmit)="submitLogin()" data-testid="login-form">
+          <input
+            class="login-input"
+            type="text"
+            placeholder="Username"
+            [value]="username()"
+            (input)="username.set($any($event.target).value)"
+            data-testid="login-username"
+            autocomplete="username"
+          />
+          <input
+            class="login-input"
+            type="password"
+            placeholder="Password"
+            [value]="password()"
+            (input)="password.set($any($event.target).value)"
+            data-testid="login-password"
+            autocomplete="current-password"
+          />
+          <button class="btn btn-primary" type="submit" data-testid="login-submit">Sign In</button>
+          <button class="btn btn-outline" type="button" (click)="toggleLogin()" data-testid="login-cancel">Cancel</button>
+          @if (loginError()) {
+            <span class="login-error" data-testid="login-error">{{ loginError() }}</span>
+          }
+        </form>
+      } @else {
+        <button class="btn btn-primary" (click)="toggleLogin()" data-testid="login-btn">Login</button>
+      }
     }
   </div>
 </nav>
