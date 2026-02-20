@@ -113,7 +113,7 @@ class AutoDBMS():
             'formly_schemas': formly_schemas
         }
     
-def generate_project(sql_text: str, output_dir: str, config) -> None:
+def generate_project(sql_text: str, output_dir: str, config, use_auth: bool = False) -> None:
     """Generate a Flask DBMS project from SQL text and write files to output_dir."""
     linter = SQLLinter()
     (valid, errors) = linter.validate_sql(sql_text)
@@ -178,8 +178,12 @@ def generate_project(sql_text: str, output_dir: str, config) -> None:
             }
 
             Templates.form_template.write(forms_path, table_name, template_payload)
-            Templates.NoAuth.Basic.service_template.write(services_path, table_name, template_payload)
-            Templates.NoAuth.Basic.flask_blueprint.write(blueprints_path, table_name, template_payload)
+            if use_auth:
+                Templates.Auth.Basic.service_template.write(services_path, table_name, template_payload)
+                Templates.Auth.Basic.flask_blueprint.write(blueprints_path, table_name, template_payload)
+            else:
+                Templates.NoAuth.Basic.service_template.write(services_path, table_name, template_payload)
+                Templates.NoAuth.Basic.flask_blueprint.write(blueprints_path, table_name, template_payload)
             blueprint_strs.append(bp_template.format(**template_payload))
             import_strs.append(import_template.format(**template_payload))
 
@@ -227,38 +231,63 @@ def generate_project(sql_text: str, output_dir: str, config) -> None:
                 template_payload['crud_keys_typed'] = crud_inputs_typed[0]
 
             Templates.form_template.write(forms_path, table_name, template_payload)
-            Templates.NoAuth.FullCrud.service_template.write(services_path, table_name, template_payload)
-            Templates.NoAuth.FullCrud.flask_blueprint.write(blueprints_path, table_name, template_payload)
+            if use_auth:
+                Templates.Auth.FullCrud.service_template.write(services_path, table_name, template_payload)
+                Templates.Auth.FullCrud.flask_blueprint.write(blueprints_path, table_name, template_payload)
+            else:
+                Templates.NoAuth.FullCrud.service_template.write(services_path, table_name, template_payload)
+                Templates.NoAuth.FullCrud.flask_blueprint.write(blueprints_path, table_name, template_payload)
             blueprint_strs.append(bp_template.format(**template_payload))
             import_strs.append(import_template.format(**template_payload))
 
     db_models_payload = {
         'payload': all_models
     }
-    Templates.NoAuth.db_models_blueprint.write(blueprints_path, 'db_models', db_models_payload)
+    if use_auth:
+        Templates.Auth.db_models_blueprint.write(blueprints_path, 'db_models', db_models_payload)
+    else:
+        Templates.NoAuth.db_models_blueprint.write(blueprints_path, 'db_models', db_models_payload)
     # db_models blueprint has no url_prefix so it needs one at registration time
     blueprint_strs.append("app.register_blueprint(db_models_blueprint, url_prefix='/api')\n")
     import_strs.append(import_template.format(name='db_models'))
+
+    if use_auth:
+        blueprint_strs.append("app.register_blueprint(auth_blueprint)\n")
+        import_strs.append("from blueprints.auth_blueprint import auth_blueprint\n")
 
     app_payload = {
         'blueprints': '    '.join(blueprint_strs),
         'imports': ''.join(import_strs)
     }
 
-    Templates.NoAuth.extensions_template.write(sample_path, 'extensions', {})
-    Templates.NoAuth.requirements_template.write(sample_path, 'requirements', {})
-    Templates.NoAuth.app_template.write(sample_path, 'app', app_payload)
-    Templates.NoAuth.config_template.write(sample_path, 'config', {})
-    Templates.NoAuth.blueprints_init_template.write(blueprints_path, '__init__', {})
-    Templates.NoAuth.readme_template.write(sample_path, 'README', {
+    # 6 core files: app.py, extensions.py, requirements.txt, config.py, README.md, models.py
+    GENERATED_CORE_FILES = 6
+    readme_payload = {
         'project_name': config.project_name,
-        'files': len(os.listdir(blueprints_path)) + len(os.listdir(services_path)) + len(os.listdir(forms_path)) + 6,
+        'files': len(os.listdir(blueprints_path)) + len(os.listdir(services_path)) + len(os.listdir(forms_path)) + GENERATED_CORE_FILES,
         'tables': len(tables),
         'columns': 0,
         'user': os.getenv('USER') or 'unknown',
         'host': os.uname().nodename,
         'time': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    })
+    }
+
+    if use_auth:
+        Templates.Auth.extensions_template.write(sample_path, 'extensions', {})
+        Templates.Auth.requirements_template.write(sample_path, 'requirements', {})
+        Templates.Auth.app_template.write(sample_path, 'app', app_payload)
+        Templates.Auth.config_template.write(sample_path, 'config', {})
+        Templates.Auth.blueprints_init_template.write(blueprints_path, '__init__', {})
+        Templates.Auth.readme_template.write(sample_path, 'README', readme_payload)
+        Templates.Auth.auth_blueprint.write(blueprints_path, 'auth', {})
+        Templates.Auth.user_model.write(sample_path, 'user_model', {})
+    else:
+        Templates.NoAuth.extensions_template.write(sample_path, 'extensions', {})
+        Templates.NoAuth.requirements_template.write(sample_path, 'requirements', {})
+        Templates.NoAuth.app_template.write(sample_path, 'app', app_payload)
+        Templates.NoAuth.config_template.write(sample_path, 'config', {})
+        Templates.NoAuth.blueprints_init_template.write(blueprints_path, '__init__', {})
+        Templates.NoAuth.readme_template.write(sample_path, 'README', readme_payload)
 
     with open(os.path.join(sample_path, 'models.py'), 'w') as f:
         f.write(models)
@@ -277,6 +306,7 @@ def main():
     parser.add_argument('--config', default=None, help='Path to config.json')
     parser.add_argument('--sql', default=None, help='Path to SQL file (default: test.sql)')
     parser.add_argument('--output', default=None, help='Output directory (default: ../sample_project)')
+    parser.add_argument('--auth', action='store_true', default=False, help='Generate JWT-auth flavour (default: no-auth)')
     args = parser.parse_args()
     config_path = args.config or os.getenv('app_config_file', os.path.join(os.path.dirname(__file__), 'config', 'config.json'))
     config = Config(config_file=config_path)
@@ -284,7 +314,7 @@ def main():
     sql_text = open(sql_file).read()
 
     output_dir = args.output or os.path.join(os.path.dirname(os.getcwd()), 'sample_project')
-    generate_project(sql_text, output_dir, config)
+    generate_project(sql_text, output_dir, config, use_auth=args.auth)
 
 if __name__ == '__main__':
     main()

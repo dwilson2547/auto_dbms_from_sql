@@ -24,6 +24,7 @@ export class EntityDetailComponent implements OnInit {
     { operation: 'add', label: 'Add', description: 'Create a new record' },
     { operation: 'update', label: 'Update', description: 'Update an existing record by ID' },
     { operation: 'delete', label: 'Delete', description: 'Delete a record by ID' },
+    { operation: 'form-data', label: 'Form Data', description: 'Retrieve the Formly schema for this entity' },
   ];
 
   ngOnInit(): void {
@@ -82,6 +83,9 @@ export class EntityDetailComponent implements OnInit {
         break;
       case 'delete':
         operation$ = this.entityService.delete(path, id);
+        break;
+      case 'form-data':
+        operation$ = this.entityService.getFormData(path);
         break;
       default:
         panel.errorMsg.set('Unknown operation.');
