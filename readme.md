@@ -31,6 +31,7 @@ auto_dbms_from_sql/
 │       │   └── auth/             # Templates for the JWT-auth flavour (same structure)
 │       └── utils/                # SQL parsing, linting, SQLAlchemy + Formly converters
 ├── db/
+│   ├── docker-compose.yml        # Docker Compose file to spin up a local PostgreSQL instance
 │   └── start_db.sh               # Docker one-liner to spin up a local PostgreSQL instance
 ├── tests/
 │   ├── conftest.py               # Shared pytest fixtures (Docker, Flask server, Playwright)
@@ -65,7 +66,7 @@ auto_dbms_from_sql/
 
 ### Database (`db/`)
 
-A `start_db.sh` script is provided that starts a PostgreSQL container via Docker. No migrations or seed data are included.
+A `docker-compose.yml` is provided to start a PostgreSQL container with `docker compose up -d`. A legacy `start_db.sh` script is also available as an alternative. No migrations or seed data are included.
 
 ### UI (`ui/auto-dbms-ui/`) — functional
 
@@ -95,6 +96,15 @@ A pytest-bdd test suite covers the full pipeline:
 ## Quick Start
 
 ### 1. Start the database
+
+Using Docker Compose (recommended):
+
+```bash
+cd db
+docker compose up -d
+```
+
+Or with the shell script:
 
 ```bash
 cd db
