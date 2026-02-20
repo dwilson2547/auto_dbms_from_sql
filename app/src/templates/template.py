@@ -55,7 +55,7 @@ class Templates:
             flask_blueprint = TemplateFile('auth/fullcrud/flask_blueprint.py.txt', '${name}_blueprint.py')
             service_template = TemplateFile('auth/fullcrud/service_template.py.txt', '${name}_service.py')
     class NoAuth:
-        blueprints_init_template = TemplateFile('auth/blueprints_init.py.txt', '__init__.py')
+        blueprints_init_template = TemplateFile('noauth/blueprints_init.py.txt', '__init__.py')
         extensions_template = TemplateFile('noauth/extensions.py.txt', 'extensions.py')
         app_template = TemplateFile('noauth/app.py.txt', 'app.py')
         requirements_template = TemplateFile('noauth/requirements.txt.txt', 'requirements.txt')
