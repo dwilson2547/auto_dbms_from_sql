@@ -32,15 +32,22 @@ auto_dbms_from_sql/
 │       └── utils/                # SQL parsing, linting, SQLAlchemy + Formly converters
 ├── db/
 │   └── start_db.sh               # Docker one-liner to spin up a local PostgreSQL instance
+├── tests/
+│   ├── conftest.py               # Shared pytest fixtures (Docker, Flask server, Playwright)
+│   ├── requirements.txt          # Test dependencies
+│   ├── sample_schema.sql         # 4-table SQL schema used by the test suite
+│   ├── test_pipeline.py          # BDD step definitions for pipeline.feature
+│   ├── test_crud.py              # BDD step definitions for crud.feature (UI)
+│   └── features/                 # Gherkin feature files
 └── ui/
-    └── auto-dbms-ui/             # Starter Angular 20 project (scaffolding only at present)
+    └── auto-dbms-ui/             # Angular 20 UI – entity list, detail, CRUD panels, auth
 ```
 
 ---
 
 ## Current Status
 
-### Generator (`app/src/`) — mostly functional
+### Generator (`app/src/`) — functional
 
 | Feature | Status |
 |---|---|
@@ -52,16 +59,36 @@ auto_dbms_from_sql/
 | `db_models` discovery route (`/api/get_all`) | ✅ Working |
 | Per-table `form-data` route | ✅ Working |
 | Full CRUD routes per table | ✅ Working |
-| Config path is hard-coded in `main()` | ⚠️ Needs fix (`/home/daniel/…`) |
-| `config.json` `fluff_config_path` is absolute | ⚠️ Needs to be made relative/configurable |
+| Config path (relative / env-var override) | ✅ Fixed |
+| `config.json` `fluff_config_path` (relative) | ✅ Fixed |
+| CLI flags (`--config`, `--sql`, `--output`) | ✅ Working |
 
 ### Database (`db/`)
 
 A `start_db.sh` script is provided that starts a PostgreSQL container via Docker. No migrations or seed data are included.
 
-### UI (`ui/auto-dbms-ui/`) — scaffolding only
+### UI (`ui/auto-dbms-ui/`) — functional
 
-The Angular project was generated with Angular CLI 20 and currently contains only the default starter app. No API integration, routing, or Formly components have been implemented yet.
+The Angular 20 project is wired up to the generated API and provides a working CRUD interface:
+
+| Feature | Status |
+|---|---|
+| Entity list page (fetches `/api/get_all` dynamically) | ✅ Working |
+| Entity detail page with 5 CRUD operation panels | ✅ Working |
+| Navbar component | ✅ Working |
+| `EntityService` (get-all, get-one, add, update, delete) | ✅ Working |
+| `AuthService` + JWT auth interceptor | ✅ Working |
+| Routing (`/` → entity list, `/entity/:name` → detail) | ✅ Working |
+
+### Tests (`tests/`)
+
+A pytest-bdd test suite covers the full pipeline:
+
+| Test | Coverage |
+|---|---|
+| `features/pipeline.feature` | Project file generation, API entity list, add/delete records |
+| `features/crud.feature` | UI CRUD operations via Playwright (opt-in with `--run-ui`) |
+| `features/auth.feature` | Login/logout flows via UI (opt-in with `--run-ui`) |
 
 ---
 
@@ -83,14 +110,12 @@ pip install -r requirements.txt
 
 ### 3. Run the generator
 
-Edit `app/src/config/config.json` to set `fluff_config_path` to the absolute path of `app/src/config/.sqlfluff` on your machine, then:
-
 ```bash
 cd app/src
-python app.py
+python app.py [--sql path/to/schema.sql] [--output path/to/output_dir] [--config path/to/config.json]
 ```
 
-By default the generator reads `test.sql` in the same directory and writes output to an output directory of your choice.
+All arguments are optional. By default the generator reads `test.sql` in the same directory and writes output to `../sample_project`. The config file path can also be set via the `app_config_file` environment variable.
 
 ### 4. Run the Angular UI
 
@@ -101,6 +126,33 @@ ng serve
 ```
 
 Open `http://localhost:4200/` in your browser.
+
+---
+
+## Testing
+
+The `tests/` directory contains a pytest-bdd suite that exercises the full pipeline using real Docker containers via `testcontainers`.
+
+### Install test dependencies
+
+```bash
+cd tests
+pip install -r requirements.txt
+```
+
+### Run the pipeline tests (no browser required)
+
+```bash
+cd tests
+pytest test_pipeline.py -v
+```
+
+### Run UI/Playwright tests (opt-in)
+
+```bash
+cd tests
+pytest test_crud.py --run-ui -v
+```
 
 ---
 
@@ -128,3 +180,5 @@ Plus the discovery route:
 ## Known Issues / TODO
 
 - CherryPy is used as the WSGI server in generated projects; it may be preferable to use Gunicorn or the Flask dev server for simplicity.
+- The `form-data` endpoint is defined in the Formly templates but is not yet wired into the Angular UI.
+- Auth (JWT) flavour templates exist in `app/src/templates/auth/` but the generator currently always produces no-auth output; a CLI flag to select the auth flavour is not yet implemented.
