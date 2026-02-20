@@ -39,12 +39,12 @@ class Config:
 
     logging_config: LoggingConfig
     parse_config: ParseConfig
-    module_logging: Dict[str, LoggingConfig] = field(default_factory=dict)
 
     def __init__(self, config_file: Optional[str] = None):
         
         self.logging_config = LoggingConfig()
         self.parse_config = ParseConfig()
+        self.module_logging: Dict[str, LoggingConfig] = {}
         
         if config_file:
             self.load_from_file(config_file)

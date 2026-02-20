@@ -1,11 +1,11 @@
 <nav class="navbar">
-  <a class="brand" routerLink="/">Auto DBMS</a>
+  <a class="brand" routerLink="/" data-testid="navbar-brand">Auto DBMS</a>
   <div class="nav-actions">
     @if (auth.isLoggedIn()) {
       <span class="user-label">Logged in</span>
-      <button class="btn btn-outline" (click)="auth.logout()">Logout</button>
+      <button class="btn btn-outline" (click)="auth.logout()" data-testid="logout-btn">Logout</button>
     } @else {
-      <button class="btn btn-primary" (click)="auth.login()">Login</button>
+      <button class="btn btn-primary" (click)="auth.login()" data-testid="login-btn">Login</button>
     }
   </div>
 </nav>

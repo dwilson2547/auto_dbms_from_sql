@@ -1,5 +1,10 @@
 <div class="panel" [class.expanded]="expanded()">
-  <button class="panel-header" (click)="toggle()" [attr.aria-expanded]="expanded()">
+  <button
+    class="panel-header"
+    (click)="toggle()"
+    [attr.aria-expanded]="expanded()"
+    [attr.data-testid]="'panel-toggle-' + config().operation"
+  >
     <span class="panel-label">{{ config().label }}</span>
     <span class="panel-desc">{{ config().description }}</span>
     <span class="panel-chevron">{{ expanded() ? '▲' : '▼' }}</span>
@@ -17,6 +22,7 @@
             placeholder="Enter record ID"
             [value]="idInput()"
             (input)="onIdChange($event)"
+            [attr.data-testid]="'id-input-' + config().operation"
           />
         </div>
       }
@@ -31,22 +37,23 @@
             placeholder='{}'
             [value]="jsonInput()"
             (input)="onJsonChange($event)"
+            [attr.data-testid]="'json-input-' + config().operation"
           ></textarea>
         </div>
       }
 
       @if (loading()) {
-        <p class="status-msg">Loading…</p>
+        <p class="status-msg" [attr.data-testid]="'status-loading-' + config().operation">Loading…</p>
       }
 
       @if (errorMsg()) {
-        <p class="status-msg error">{{ errorMsg() }}</p>
+        <p class="status-msg error" [attr.data-testid]="'status-error-' + config().operation">{{ errorMsg() }}</p>
       }
 
       @if (result() !== null && !loading()) {
-        <div class="result-block">
+        <div class="result-block" [attr.data-testid]="'result-block-' + config().operation">
           <p class="result-label">Response</p>
-          <pre class="result-pre">{{ resultJson }}</pre>
+          <pre class="result-pre" [attr.data-testid]="'result-pre-' + config().operation">{{ resultJson }}</pre>
         </div>
       }
     </div>

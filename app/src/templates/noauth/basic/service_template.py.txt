@@ -2,4 +2,4 @@ from extensions import db
 from models import ${model_name}
 
 def get_all():
-    return db.session.query(${model_name}).all()
+    return [r.to_dict() for r in db.session.query(${model_name}).all()]

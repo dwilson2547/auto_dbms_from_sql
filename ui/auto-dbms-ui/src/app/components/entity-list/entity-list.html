@@ -1,18 +1,18 @@
 <div class="container">
-  <h1 class="page-title">Entities</h1>
+  <h1 class="page-title" data-testid="entity-list-title">Entities</h1>
   <p class="page-subtitle">Select an entity to manage its records.</p>
 
   @if (loading()) {
-    <p class="status-msg">Loading entities…</p>
+    <p class="status-msg" data-testid="status-loading">Loading entities…</p>
   } @else if (error()) {
-    <p class="status-msg error">{{ error() }}</p>
+    <p class="status-msg error" data-testid="status-error">{{ error() }}</p>
   } @else if (entities().length === 0) {
-    <p class="status-msg">No entities found.</p>
+    <p class="status-msg" data-testid="status-empty">No entities found.</p>
   } @else {
-    <ul class="entity-list">
+    <ul class="entity-list" data-testid="entity-list">
       @for (entity of entities(); track entity.path) {
-        <li class="entity-item">
-          <a class="entity-link" [routerLink]="['/entity', entity.name]">
+        <li class="entity-item" [attr.data-testid]="'entity-item-' + entity.name.toLowerCase()">
+          <a class="entity-link" [routerLink]="['/entity', entity.name]" [attr.data-testid]="'entity-link-' + entity.name.toLowerCase()">
             <span class="entity-name">{{ entity.name }}</span>
             <span class="entity-arrow">→</span>
           </a>

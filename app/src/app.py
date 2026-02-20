@@ -113,37 +113,25 @@ class AutoDBMS():
             'formly_schemas': formly_schemas
         }
     
-def main():
-    parser = argparse.ArgumentParser(description='Auto DBMS generator')
-    parser.add_argument('--config', default=None, help='Path to config.json')
-    args = parser.parse_args()
-    config_path = args.config or os.getenv('app_config_file', os.path.join(os.path.dirname(__file__), 'config', 'config.json'))
-    config = Config(config_file=config_path)
-    sql_text = open('test.sql').read()
-    
-    # Validate SQL
+def generate_project(sql_text: str, output_dir: str, config) -> None:
+    """Generate a Flask DBMS project from SQL text and write files to output_dir."""
     linter = SQLLinter()
     (valid, errors) = linter.validate_sql(sql_text)
-    
+
     if not valid:
         for error in errors:
             log.error(f"SQL Validation Error found - {error}")
-        sys.exit(1)
+        raise ValueError(f"SQL validation failed: {errors}")
 
     formatted_sql = linter.format_sql(sql_text)
-
     log.info(f'Formatted SQL: {formatted_sql}')
 
-    # models_sqlalchemy = convert_sql_to_sqlalchemy(formatted_sql)
-
-    path = os.getcwd()
-    log.info(f'Current working directory: {path}')
-    sample_path = os.path.join(os.path.dirname(path), 'sample_project')
+    sample_path = output_dir
     services_path = os.path.join(sample_path, 'services')
     forms_path = os.path.join(sample_path, 'forms')
     form_jsons_path = os.path.join(forms_path, 'json')
     blueprints_path = os.path.join(sample_path, 'blueprints')
-    
+
     if os.path.exists(sample_path):
         shutil.rmtree(sample_path)
     os.makedirs(sample_path)
@@ -163,7 +151,9 @@ def main():
     formly_schemas = {}
     table_formatter = TableSqlFormatter(config=config)
 
-    bp_template = "app.register_blueprint({name}_blueprint, url_prefix='/api')   # Blueprint name is added to url in blueprint file\n"
+    # Entity blueprints use their own /api/{name} url_prefix (set in the blueprint file).
+    # Only db_models needs an explicit url_prefix on registration.
+    bp_template = "app.register_blueprint({name}_blueprint)\n"
     import_template = "from blueprints.{name}_blueprint import {name}_blueprint\n"
 
     blueprint_strs = []
@@ -178,29 +168,29 @@ def main():
 
         table_name_camel = builder.to_camel_case(table_name)
         all_models.append({'name': table_name_camel, 'path': f'/{table_name}'})
-        
+
         if table_name not in table_dict_keys:
             log.error(f"Table {table_name} not found in sql -> flask_sqlalchemy converter parsed tables, only basic get_all functionality will be created.")
-            
+
             template_payload = {
                 'name': table_name,
                 'model_name': table_name_camel
             }
-            
+
             Templates.form_template.write(forms_path, table_name, template_payload)
             Templates.NoAuth.Basic.service_template.write(services_path, table_name, template_payload)
             Templates.NoAuth.Basic.flask_blueprint.write(blueprints_path, table_name, template_payload)
             blueprint_strs.append(bp_template.format(**template_payload))
             import_strs.append(import_template.format(**template_payload))
-        
+
         else:
             log.info(f"Generating full CRUD for table {table_name}.")
-            
+
             template_payload = {
                 'name': table_name,
                 'model_name': table_name_camel
             }
-            
+
             table_rec = tables_dict.get(table_name, None)
             crud_inputs = []
             crud_inputs_typed = []
@@ -222,11 +212,11 @@ def main():
                 crud_inputs_typed.append(f'{cn_l}: {python_type}')
                 url_params.append(f'<{python_type}:{cn_l}>')
                 pk_filter.append(f'{template_payload["model_name"]}.{cn_l} == {cn_l}')
-            
+
             template_payload['add_payload'] = ',\n'.join(add_payload)
             template_payload['update_payload'] = '\n'.join(update_payload)
             template_payload['pk_id_filter'] = ' & '.join(pk_filter)
-            
+
             if len(crud_inputs) > 1:
                 template_payload['crud_keys'] = ', '.join(crud_inputs)
                 template_payload['crud_route'] = '/'.join(url_params)
@@ -246,7 +236,8 @@ def main():
         'payload': all_models
     }
     Templates.NoAuth.db_models_blueprint.write(blueprints_path, 'db_models', db_models_payload)
-    blueprint_strs.append(bp_template.format(name='db_models'))
+    # db_models blueprint has no url_prefix so it needs one at registration time
+    blueprint_strs.append("app.register_blueprint(db_models_blueprint, url_prefix='/api')\n")
     import_strs.append(import_template.format(name='db_models'))
 
     app_payload = {
@@ -279,6 +270,21 @@ def main():
     open(os.path.join(services_path, '__init__.py'), 'a').close()
     open(os.path.join(forms_path, '__init__.py'), 'a').close()
     open(os.path.join(sample_path, '__init__.py'), 'a').close()
+
+
+def main():
+    parser = argparse.ArgumentParser(description='Auto DBMS generator')
+    parser.add_argument('--config', default=None, help='Path to config.json')
+    parser.add_argument('--sql', default=None, help='Path to SQL file (default: test.sql)')
+    parser.add_argument('--output', default=None, help='Output directory (default: ../sample_project)')
+    args = parser.parse_args()
+    config_path = args.config or os.getenv('app_config_file', os.path.join(os.path.dirname(__file__), 'config', 'config.json'))
+    config = Config(config_file=config_path)
+    sql_file = args.sql or 'test.sql'
+    sql_text = open(sql_file).read()
+
+    output_dir = args.output or os.path.join(os.path.dirname(os.getcwd()), 'sample_project')
+    generate_project(sql_text, output_dir, config)
 
 if __name__ == '__main__':
     main()
