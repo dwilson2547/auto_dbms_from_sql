@@ -127,8 +127,4 @@ Plus the discovery route:
 
 ## Known Issues / TODO
 
-- Hard-coded absolute path in `app/src/app.py` `main()` function (`config_path = '/home/daniel/…'`) — the generator must be configured via environment variable or CLI argument instead.
-- `config.json` `fluff_config_path` is an absolute path that will not work on other machines — should default to a path relative to the config file.
-- The `NoAuth` class in `template.py` currently references the `auth/blueprints_init.py.txt` template instead of a dedicated `noauth` version.
-- The Angular UI (`ui/auto-dbms-ui/`) has no implementation yet — API integration and Formly rendering still need to be built.
 - CherryPy is used as the WSGI server in generated projects; it may be preferable to use Gunicorn or the Flask dev server for simplicity.
