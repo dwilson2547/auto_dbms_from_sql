@@ -187,6 +187,40 @@ Plus the discovery route:
 
 ---
 
+## Docker Hub Integration
+
+The CI/CD pipeline automatically builds and publishes a Docker image for the Angular UI (`ui/auto-dbms-ui`) to Docker Hub.
+
+| Event | Image tag |
+|---|---|
+| Pull request (UI changes) | `<username>/auto-dbms-ui:snapshot-pr<number>` |
+| Merge to `main` | `<username>/auto-dbms-ui:<version>` and `<username>/auto-dbms-ui:latest` |
+
+The UI Docker build job is skipped entirely when no files under `ui/` have changed, saving CI minutes.
+
+### Connecting the pipeline to your Docker Hub account
+
+1. **Create a Docker Hub access token**
+   - Log in to [hub.docker.com](https://hub.docker.com).
+   - Go to **Account Settings → Personal access tokens → Generate new token**.
+   - Give it a meaningful name (e.g. `github-actions`) and select the **Read, Write, Delete** scope.
+   - Copy the token – you will not be able to see it again.
+
+2. **Add secrets to the GitHub repository**
+   - In this repository, go to **Settings → Secrets and variables → Actions → New repository secret**.
+   - Add the following two secrets:
+
+     | Secret name | Value |
+     |---|---|
+     | `DOCKERHUB_USERNAME` | Your Docker Hub username (e.g. `dwilson2547`) |
+     | `DOCKERHUB_TOKEN` | The access token you generated in step 1 |
+
+3. **Verify**
+   - Open a pull request that touches a file under `ui/`. The `Publish snapshot UI image` job should appear in the Actions tab and push `<username>/auto-dbms-ui:snapshot-pr<number>` to Docker Hub.
+   - Merge the PR to `main`. After CI completes, the `Publish release UI image` job will push a versioned tag (e.g. `v1.0.1`) and update the `latest` tag.
+
+---
+
 ## Known Issues / TODO
 
 - CherryPy is used as the WSGI server in generated projects; it may be preferable to use Gunicorn or the Flask dev server for simplicity.
