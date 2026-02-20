@@ -66,26 +66,30 @@ export class EntityDetailComponent implements OnInit {
     panel.errorMsg.set(null);
     panel.loading.set(true);
 
-    let obs$;
+    let operation$;
     switch (op) {
       case 'get-all':
-        obs$ = this.entityService.getAll(path);
+        operation$ = this.entityService.getAll(path);
         break;
       case 'get-one':
-        obs$ = this.entityService.getOne(path, id);
+        operation$ = this.entityService.getOne(path, id);
         break;
       case 'add':
-        obs$ = this.entityService.add(path, body);
+        operation$ = this.entityService.add(path, body);
         break;
       case 'update':
-        obs$ = this.entityService.update(path, id, body);
+        operation$ = this.entityService.update(path, id, body);
         break;
       case 'delete':
-        obs$ = this.entityService.delete(path, id);
+        operation$ = this.entityService.delete(path, id);
         break;
+      default:
+        panel.errorMsg.set('Unknown operation.');
+        panel.loading.set(false);
+        return;
     }
 
-    obs$.subscribe({
+    operation$.subscribe({
       next: (res) => {
         panel.result.set(res);
         panel.loading.set(false);
