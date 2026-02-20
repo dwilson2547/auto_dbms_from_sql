@@ -1,0 +1,55 @@
+name: Generate Flask API
+
+on:
+  workflow_dispatch:
+    inputs:
+      sql_schema:
+        description: "SQL schema content (one or more CREATE TABLE statements)"
+        required: true
+        type: string
+      use_auth:
+        description: "Generate JWT authentication"
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  generate:
+    name: Generate Flask API from SQL schema
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install app dependencies
+        run: pip install -r app/requirements.txt
+
+      - name: Write SQL schema to file
+        env:
+          SQL_SCHEMA: ${{ inputs.sql_schema }}
+        run: python -c "import os; f=open('/tmp/schema.sql','w'); f.write(os.environ['SQL_SCHEMA']); f.close()"
+
+      - name: Generate Flask API project
+        run: |
+          AUTH_FLAG=""
+          if [ "${{ inputs.use_auth }}" = "true" ]; then
+            AUTH_FLAG="--auth"
+          fi
+          python app/src/app.py \
+            --sql /tmp/schema.sql \
+            --output /tmp/generated_project \
+            $AUTH_FLAG
+
+      - name: Package generated project as tarball
+        run: tar -czf /tmp/flask_api.tar.gz -C /tmp generated_project
+
+      - name: Upload generated Flask API
+        uses: actions/upload-artifact@v4
+        with:
+          name: flask-api
+          path: /tmp/flask_api.tar.gz
