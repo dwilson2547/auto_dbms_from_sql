@@ -1,0 +1,23 @@
+<div class="container">
+  <h1 class="page-title">Entities</h1>
+  <p class="page-subtitle">Select an entity to manage its records.</p>
+
+  @if (loading()) {
+    <p class="status-msg">Loading entities…</p>
+  } @else if (error()) {
+    <p class="status-msg error">{{ error() }}</p>
+  } @else if (entities().length === 0) {
+    <p class="status-msg">No entities found.</p>
+  } @else {
+    <ul class="entity-list">
+      @for (entity of entities(); track entity.path) {
+        <li class="entity-item">
+          <a class="entity-link" [routerLink]="['/entity', entity.name]">
+            <span class="entity-name">{{ entity.name }}</span>
+            <span class="entity-arrow">→</span>
+          </a>
+        </li>
+      }
+    </ul>
+  }
+</div>
