@@ -21,7 +21,6 @@ Auto DBMS from SQL is a code-generation tool that reads a SQL schema and produce
 auto_dbms_from_sql/
 ├── app/
 │   ├── requirements.txt          # Python deps for the generator itself
-│   ├── sample_project/           # Example output generated from sample SQL
 │   └── src/
 │       ├── app.py                # Main generator entry-point (AutoDBMS class + main())
 │       ├── config/               # Config loader (Config.py) and config.json
@@ -91,19 +90,9 @@ cd app/src
 python app.py
 ```
 
-By default the generator reads `test.sql` in the same directory and writes output to `app/sample_project/`.
+By default the generator reads `test.sql` in the same directory and writes output to an output directory of your choice.
 
-### 4. Run the generated API
-
-```bash
-cd app/sample_project
-pip install -r requirements.txt
-python app.py
-```
-
-The API will be available at `http://localhost:8080/api/`.
-
-### 5. Run the Angular UI
+### 4. Run the Angular UI
 
 ```bash
 cd ui/auto-dbms-ui
@@ -143,4 +132,3 @@ Plus the discovery route:
 - The `NoAuth` class in `template.py` currently references the `auth/blueprints_init.py.txt` template instead of a dedicated `noauth` version.
 - The Angular UI (`ui/auto-dbms-ui/`) has no implementation yet — API integration and Formly rendering still need to be built.
 - CherryPy is used as the WSGI server in generated projects; it may be preferable to use Gunicorn or the Flask dev server for simplicity.
-- `sample_project/` is checked in to the repository; it is generated output and should arguably be git-ignored or documented as an example only.
