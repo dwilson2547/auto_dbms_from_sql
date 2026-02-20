@@ -17,14 +17,27 @@ jobs:
         with:
           python-version: "3.12"
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: ui/auto-dbms-ui/package-lock.json
+
+      - name: Install Angular dependencies
+        run: npm ci
+        working-directory: ui/auto-dbms-ui
+
       - name: Install app dependencies
         run: pip install -r app/requirements.txt
 
       - name: Install test dependencies
         run: pip install -r tests/requirements.txt
 
+      - name: Install Playwright browsers
+        run: playwright install chromium --with-deps
+
       - name: Run tests
-        run: pytest tests/ -v
+        run: pytest tests/ -v --run-ui
 
   build-and-test-ui:
     name: Angular build and test
