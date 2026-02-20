@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "environment": "development",
     "parse": {
-        "fluff_config_path": "/home/daniel/documents/auto_dbms/app/src/config/.sqlfluff"
+        "fluff_config_path": ".sqlfluff"
     },
     "logging": {
         "level": "DEBUG",

@@ -75,8 +75,12 @@ class Config:
         self.api_prefix = data.get("api_prefix", self.api_prefix)
 
         # Parse configuration
+        config_dir = os.path.dirname(os.path.abspath(file_path))
         parse_data = data.get("parse", {})
-        self.parse_config.fluff_config_path = parse_data.get("fluff_config_path", self.parse_config.fluff_config_path)
+        raw_fluff_path = parse_data.get("fluff_config_path", self.parse_config.fluff_config_path)
+        if raw_fluff_path and not os.path.isabs(raw_fluff_path):
+            raw_fluff_path = os.path.join(config_dir, raw_fluff_path)
+        self.parse_config.fluff_config_path = raw_fluff_path
         
         # Logging configuration
         logging_data = data.get("logging", {})

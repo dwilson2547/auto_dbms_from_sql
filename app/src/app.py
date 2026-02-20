@@ -1,6 +1,7 @@
 from utils import *
 import sys
 import os, shutil
+import argparse
 from config import Config
 from datetime import datetime
 
@@ -113,7 +114,10 @@ class AutoDBMS():
         }
     
 def main():
-    config_path = '/home/daniel/documents/auto_dbms/app/src/config/config.json'
+    parser = argparse.ArgumentParser(description='Auto DBMS generator')
+    parser.add_argument('--config', default=None, help='Path to config.json')
+    args = parser.parse_args()
+    config_path = args.config or os.getenv('app_config_file', os.path.join(os.path.dirname(__file__), 'config', 'config.json'))
     config = Config(config_file=config_path)
     sql_text = open('test.sql').read()
     
