@@ -1,0 +1,54 @@
+<div class="panel" [class.expanded]="expanded()">
+  <button class="panel-header" (click)="toggle()" [attr.aria-expanded]="expanded()">
+    <span class="panel-label">{{ config().label }}</span>
+    <span class="panel-desc">{{ config().description }}</span>
+    <span class="panel-chevron">{{ expanded() ? '▲' : '▼' }}</span>
+  </button>
+
+  @if (expanded()) {
+    <div class="panel-body">
+      @if (requiresId) {
+        <div class="field-group">
+          <label class="field-label" for="id-{{ config().operation }}">ID</label>
+          <input
+            id="id-{{ config().operation }}"
+            class="field-input"
+            type="text"
+            placeholder="Enter record ID"
+            [value]="idInput()"
+            (input)="onIdChange($event)"
+          />
+        </div>
+      }
+
+      @if (requiresBody) {
+        <div class="field-group">
+          <label class="field-label" for="body-{{ config().operation }}">Request Body (JSON)</label>
+          <textarea
+            id="body-{{ config().operation }}"
+            class="field-textarea"
+            rows="6"
+            placeholder='{}'
+            [value]="jsonInput()"
+            (input)="onJsonChange($event)"
+          ></textarea>
+        </div>
+      }
+
+      @if (loading()) {
+        <p class="status-msg">Loading…</p>
+      }
+
+      @if (errorMsg()) {
+        <p class="status-msg error">{{ errorMsg() }}</p>
+      }
+
+      @if (result() !== null && !loading()) {
+        <div class="result-block">
+          <p class="result-label">Response</p>
+          <pre class="result-pre">{{ resultJson }}</pre>
+        </div>
+      }
+    </div>
+  }
+</div>

@@ -1,0 +1,27 @@
+<div class="container">
+  <a class="back-link" routerLink="/">← Back to Entities</a>
+
+  @if (loading()) {
+    <p class="status-msg">Loading…</p>
+  } @else if (error()) {
+    <p class="status-msg error">{{ error() }}</p>
+  } @else {
+    <h1 class="page-title">{{ entityName() }}</h1>
+    <p class="page-subtitle">CRUD operations for <strong>{{ entityPath() }}</strong></p>
+
+    <div class="panels">
+      @for (panel of panels; track panel.operation) {
+        <div class="panel-wrapper">
+          <app-crud-panel #crudPanel [config]="panel" [entityPath]="entityPath()" />
+          @if (crudPanel.expanded()) {
+            <div class="panel-footer">
+              <button class="btn btn-primary" (click)="execute(crudPanel)" [disabled]="crudPanel.loading()">
+                {{ crudPanel.loading() ? 'Loading…' : 'Execute' }}
+              </button>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>
