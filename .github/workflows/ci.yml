@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test-python:
+    name: Python tests
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install app dependencies
+        run: pip install -r app/requirements.txt
+
+      - name: Install test dependencies
+        run: pip install -r tests/requirements.txt
+
+      - name: Run tests
+        run: pytest tests/ -v
+
+  build-and-test-ui:
+    name: Angular build and test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: ui/auto-dbms-ui/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ui/auto-dbms-ui
+
+      - name: Build
+        run: npm run build
+        working-directory: ui/auto-dbms-ui
+
+      - name: Test
+        run: npm test -- --watch=false --browsers=ChromeHeadless
+        working-directory: ui/auto-dbms-ui
