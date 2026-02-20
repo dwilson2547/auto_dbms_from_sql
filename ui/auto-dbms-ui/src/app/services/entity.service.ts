@@ -35,4 +35,8 @@ export class EntityService {
   delete(entityPath: string, id: number | string): Observable<unknown> {
     return this.http.delete<unknown>(`${this.baseUrl}${entityPath}/delete/${id}`);
   }
+
+  getFormData(entityPath: string): Observable<unknown> {
+    return this.http.get<unknown>(`${this.baseUrl}${entityPath}/form-data`);
+  }
 }

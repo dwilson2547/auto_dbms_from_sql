@@ -61,7 +61,7 @@ auto_dbms_from_sql/
 | Full CRUD routes per table | ✅ Working |
 | Config path (relative / env-var override) | ✅ Fixed |
 | `config.json` `fluff_config_path` (relative) | ✅ Fixed |
-| CLI flags (`--config`, `--sql`, `--output`) | ✅ Working |
+| CLI flags (`--config`, `--sql`, `--output`, `--auth`) | ✅ Working |
 
 ### Database (`db/`)
 
@@ -76,7 +76,7 @@ The Angular 20 project is wired up to the generated API and provides a working C
 | Entity list page (fetches `/api/get_all` dynamically) | ✅ Working |
 | Entity detail page with 5 CRUD operation panels | ✅ Working |
 | Navbar component | ✅ Working |
-| `EntityService` (get-all, get-one, add, update, delete) | ✅ Working |
+| `EntityService` (get-all, get-one, add, update, delete, form-data) | ✅ Working |
 | `AuthService` + JWT auth interceptor | ✅ Working |
 | Routing (`/` → entity list, `/entity/:name` → detail) | ✅ Working |
 
@@ -180,5 +180,5 @@ Plus the discovery route:
 ## Known Issues / TODO
 
 - CherryPy is used as the WSGI server in generated projects; it may be preferable to use Gunicorn or the Flask dev server for simplicity.
-- The `form-data` endpoint is defined in the Formly templates but is not yet wired into the Angular UI.
-- Auth (JWT) flavour templates exist in `app/src/templates/auth/` but the generator currently always produces no-auth output; a CLI flag to select the auth flavour is not yet implemented.
+- ~~The `form-data` endpoint is defined in the Formly templates but is not yet wired into the Angular UI.~~ **Fixed**: `EntityService` now exposes a `getFormData()` method and a "Form Data" panel appears on each entity's detail page.
+- ~~Auth (JWT) flavour templates exist in `app/src/templates/auth/` but the generator currently always produces no-auth output; a CLI flag to select the auth flavour is not yet implemented.~~ **Fixed**: pass `--auth` to the generator to produce a JWT-secured project.

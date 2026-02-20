@@ -1,6 +1,6 @@
 import { Component, input, signal } from '@angular/core';
 
-export type CrudOperation = 'get-all' | 'get-one' | 'add' | 'update' | 'delete';
+export type CrudOperation = 'get-all' | 'get-one' | 'add' | 'update' | 'delete' | 'form-data';
 
 export interface CrudPanelConfig {
   operation: CrudOperation;
